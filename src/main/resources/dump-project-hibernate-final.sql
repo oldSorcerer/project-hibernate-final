@@ -66,7 +66,7 @@ CREATE TABLE `country` (
   `population` int(11) NOT NULL DEFAULT '0',
   `life_expectancy` decimal(3,1) DEFAULT NULL,
   `gnp` decimal(10,2) DEFAULT NULL,
-  `gnpo_id` decimal(10,2) DEFAULT NULL,
+  `gnp_old` decimal(10,2) DEFAULT NULL,
   `local_name` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `government_form` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `head_of_state` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

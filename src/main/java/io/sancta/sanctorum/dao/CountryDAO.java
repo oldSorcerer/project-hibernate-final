@@ -16,7 +16,7 @@ public class CountryDAO {
     SessionFactory sessionFactory;
 
     public List<Country> getAll() {
-        String hql = "select c from Country as c";
+        String hql = "select c from Country as c join fetch c.languages";
         Query<Country> query = sessionFactory.getCurrentSession().createQuery(hql, Country.class);
         return query.list();
     }

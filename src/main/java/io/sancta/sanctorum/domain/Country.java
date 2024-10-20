@@ -45,7 +45,7 @@ public class Country {
     @Column(name = "gnp")
     BigDecimal GNP;
 
-    @Column(name = "gnpo_id")
+    @Column(name = "gnp_old")
     BigDecimal GNPOld;
 
     @Column(name = "local_name")

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+        <property name="hibernate.connection.driver_class">com.p6spy.engine.spy.P6SpyDriver</property>
+        <property name="hibernate.connection.url">jdbc:p6spy:mysql://localhost:3306/world</property>
+
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">root</property>
+
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <property name="hibernate.hbm2ddl.auto">validate</property>
+
+        <property name="hibernate.jdbc.batch_size">100</property>
+
+        <property name="hibernate.current_session_context_class">thread</property>
+
+        <mapping class="io.sancta.sanctorum.domain.City"/>
+        <mapping class="io.sancta.sanctorum.domain.Country"/>
+        <mapping class="io.sancta.sanctorum.domain.CountryLanguage"/>
+
+    </session-factory>
+
+</hibernate-configuration>

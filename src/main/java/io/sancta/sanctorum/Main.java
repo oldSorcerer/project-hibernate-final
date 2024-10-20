@@ -5,6 +5,9 @@ import io.lettuce.core.RedisClient;
 import io.sancta.sanctorum.dao.CityDAO;
 import io.sancta.sanctorum.dao.CountryDAO;
 import io.sancta.sanctorum.domain.City;
+import io.sancta.sanctorum.domain.Country;
+import io.sancta.sanctorum.redis.CityCountry;
+import io.sancta.sanctorum.redis.Language;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.Session;
@@ -14,6 +17,8 @@ import org.hibernate.cfg.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Main {
@@ -37,6 +42,7 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
         List<City> allCities = main.fetchData(main);
+
         System.out.println(allCities.size());
         main.shutdown();
     }
@@ -62,6 +68,8 @@ public class Main {
 
             session.beginTransaction();
 
+            List<Country> countries = main.countryDAO.getAll();
+
             int totalCount = main.cityDAO.getTotalCount();
             int step = 500;
             for (int i = 0; i < totalCount; i += step) {
@@ -72,4 +80,6 @@ public class Main {
             return allCities;
         }
     }
+
+
 }

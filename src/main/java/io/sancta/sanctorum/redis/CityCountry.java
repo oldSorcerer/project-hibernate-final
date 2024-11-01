@@ -2,6 +2,7 @@ package io.sancta.sanctorum.redis;
 
 import io.sancta.sanctorum.domain.Continent;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CityCountry {
 

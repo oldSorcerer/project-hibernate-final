@@ -116,37 +116,24 @@ public class GeoController {
     private List<CityCountry> transformData(List<City> cities) {
         return cities.stream()
                 .map(city ->
-                        {
-                            CityCountry cityCountry = new CityCountry();
-                            cityCountry.setId(city.getId());
-                            cityCountry.setName(city.getName());
-                            cityCountry.setPopulation(city.getPopulation());
-                            cityCountry.setDistrict(city.getDistrict());
-
-                            Country country = city.getCountry();
-                            cityCountry.setAlternativeCountryCode(country.getAlternativeCode());
-                            cityCountry.setContinent(country.getContinent());
-                            cityCountry.setCountryCode(country.getCode());
-                            cityCountry.setCountryName(country.getName());
-                            cityCountry.setCountryPopulation(country.getPopulation());
-                            cityCountry.setCountryRegion(country.getRegion());
-                            cityCountry.setCountrySurfaceArea(country.getSurfaceArea());
-
-                            Set<Language> languages = country.getLanguages().stream()
-                                    .map(countryLanguage ->
-                                            {
-                                                Language language = new Language();
-                                                language.setLanguage(countryLanguage.getLanguage());
-                                                language.setIsOfficial(countryLanguage.getIsOfficial());
-                                                language.setPercentage(countryLanguage.getPercentage());
-
-                                                return language;
-                                            }
-                                    ).collect(Collectors.toSet());
-
-                            cityCountry.setLanguages(languages);
-                            return cityCountry;
-                        }
+                        new CityCountry(
+                                city.getId(),
+                                city.getName(),
+                                city.getDistrict(),
+                                city.getPopulation(),
+                                city.getCountry().getCode(),
+                                city.getCountry().getAlternativeCode(),
+                                city.getCountry().getName(),
+                                city.getCountry().getContinent(),
+                                city.getCountry().getRegion(),
+                                city.getCountry().getSurfaceArea(),
+                                city.getCountry().getPopulation(),
+                                city.getCountry().getLanguages().stream()
+                                        .map(countryLanguage ->
+                                                new Language(countryLanguage.getLanguage(),
+                                                        countryLanguage.getIsOfficial(),
+                                                        countryLanguage.getPercentage())
+                                        ).collect(Collectors.toSet()))
                 ).toList();
     }
 

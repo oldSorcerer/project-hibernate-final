@@ -1,7 +1,6 @@
 package io.sancta.sanctorum;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -33,7 +32,7 @@ public class GeoController {
     CountryDAO countryDAO;
 
     RedisClient redisClient;
-    ObjectMapper mapper;
+    Gson gson;
 
     public GeoController() {
         sessionFactory = prepareRelationalDatabase();
@@ -41,7 +40,9 @@ public class GeoController {
         countryDAO = new CountryDAO(sessionFactory);
 
         redisClient = prepareRedisClient();
-        mapper = new ObjectMapper();
+        gson = new Gson().newBuilder()
+                .setPrettyPrinting()
+                .create();
     }
 
     public void run() {
@@ -153,11 +154,7 @@ public class GeoController {
         try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
             RedisCommands<String, String> sync = connection.sync();
             for (CityCountry cityCountry : data) {
-                try {
-                    sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                sync.set(String.valueOf(cityCountry.getId()), gson.toJson(cityCountry));
             }
         }
     }
@@ -167,12 +164,7 @@ public class GeoController {
             RedisCommands<String, String> sync = connection.sync();
             for (Integer id : ids) {
                 String value = sync.get(String.valueOf(id));
-                try {
-                    mapper.readValue(value, CityCountry.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-
+                gson.fromJson(value, CityCountry.class);
             }
         }
     }

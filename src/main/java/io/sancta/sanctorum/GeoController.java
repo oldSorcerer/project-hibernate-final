@@ -47,8 +47,6 @@ public class GeoController {
 
         List<City> allCities = fetchData();
 
-        System.out.println(allCities.size());
-
         List<CityCountry> prepareDate = transformData(allCities);
 
         pushToRedis(prepareDate);
@@ -135,11 +133,12 @@ public class GeoController {
         try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
             RedisCommands<String, String> sync = connection.sync();
             for (CityCountry cityCountry : data) {
-                sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+                try {
+                    sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
-
 }

@@ -10,6 +10,7 @@ import io.sancta.sanctorum.dao.CityDAO;
 import io.sancta.sanctorum.dao.CountryDAO;
 import io.sancta.sanctorum.domain.City;
 import io.sancta.sanctorum.domain.Country;
+import io.sancta.sanctorum.domain.CountryLanguage;
 import io.sancta.sanctorum.redis.CityCountry;
 import io.sancta.sanctorum.redis.Language;
 import lombok.AccessLevel;
@@ -51,7 +52,26 @@ public class GeoController {
 
         pushToRedis(prepareDate);
 
+        sessionFactory.getCurrentSession().close();
+
+        benchmarkDatabasePerformance();
+
         shutdown();
+    }
+
+    private void benchmarkDatabasePerformance() {
+        List<Integer> ids = List.of(3, 2545, 123, 4, 189, 89, 3458, 1189, 10, 102);
+
+        long startRedis = System.currentTimeMillis();
+        testRedisData(ids);
+        long stopRedis = System.currentTimeMillis();
+
+        long startMysql = System.currentTimeMillis();
+        testMysqlData(ids);
+        long stopMysql = System.currentTimeMillis();
+
+        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
+        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
     }
 
     private SessionFactory prepareRelationalDatabase() {
@@ -139,6 +159,32 @@ public class GeoController {
                     throw new RuntimeException(e);
                 }
             }
+        }
+    }
+
+    private void testRedisData(List<Integer> ids) {
+        try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+            RedisCommands<String, String> sync = connection.sync();
+            for (Integer id : ids) {
+                String value = sync.get(String.valueOf(id));
+                try {
+                    mapper.readValue(value, CityCountry.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+    }
+
+    private void testMysqlData(List<Integer> ids) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            for (Integer id : ids) {
+                City city = cityDAO.getById(id);
+                Set<CountryLanguage> languages = city.getCountry().getLanguages();
+            }
+            session.getTransaction().commit();
         }
     }
 }

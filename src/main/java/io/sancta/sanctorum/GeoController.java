@@ -18,11 +18,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GeoController {
@@ -96,7 +94,7 @@ public class GeoController {
     private List<City> fetchData() {
 
         try (Session session = sessionFactory.getCurrentSession()) {
-            List<City> allCities = new ArrayList<>();
+            List<City> allCities;
 
             session.beginTransaction();
 
@@ -104,9 +102,10 @@ public class GeoController {
 
             int totalCount = cityDAO.getTotalCount();
             int step = 500;
-            for (int i = 0; i < totalCount; i += step) {
-                allCities.addAll(cityDAO.getItems(i, step));
-            }
+            allCities = IntStream.iterate(0, i -> i < totalCount, i -> i + step)
+                    .mapToObj(i -> cityDAO.getItems(i, step))
+                    .flatMap(Collection::stream)
+                    .toList();
 
             session.getTransaction().commit();
             return allCities;
@@ -166,4 +165,16 @@ public class GeoController {
             session.getTransaction().commit();
         }
     }
+
+//    public void testPostgresData(List<Integer> ids) {
+//        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+//                Session session = sessionFactory.getCurrentSession()) {
+//            session.beginTransaction();
+//            for (Integer id : ids) {
+//                City city = cityDAO.getById(id);
+//                Set<CountryLanguage> languages = city.getCountry().getLanguages();
+//            }
+//            session.beginTransaction().commit();
+//        }
+//    }
 }

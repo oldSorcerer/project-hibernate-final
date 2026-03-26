@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   mysql:
-    image: mysql:5.7
+    image: mysql:latest
     container_name: mysql-db
     restart: always
     environment:
@@ -27,20 +27,20 @@ services:
     networks:
       - geo-network
 
-  postgres:
-    build: postgres-with-pgloader
-    container_name: postgres-db
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: "root"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - geo-network
+#  postgres:
+#    build: postgres-with-pgloader
+#    container_name: postgres-db
+#    restart: always
+#    environment:
+#      POSTGRES_PASSWORD: "root"
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#    networks:
+#      - geo-network
 
-#  grafana:
+#   -grafana:
 #    image: grafana/grafana:latest
 #    container_name: grafana
 #    restart: always

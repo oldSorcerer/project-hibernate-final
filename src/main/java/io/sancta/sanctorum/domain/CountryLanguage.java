@@ -9,8 +9,7 @@ import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @Table(schema = "world", name = "country_language")
 @FieldDefaults(level = AccessLevel.PRIVATE)

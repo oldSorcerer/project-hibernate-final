@@ -9,8 +9,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @Table(schema = "world", name = "country")
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -1,6 +1,7 @@
 package io.sancta.sanctorum;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -30,7 +31,7 @@ public class GeoController {
     CountryDAO countryDAO;
 
     RedisClient redisClient;
-    Gson gson;
+    ObjectMapper mapper;
 
     public GeoController() {
         sessionFactory = prepareRelationalDatabase();
@@ -38,9 +39,7 @@ public class GeoController {
         countryDAO = new CountryDAO(sessionFactory);
 
         redisClient = prepareRedisClient();
-        gson = new Gson().newBuilder()
-                .setPrettyPrinting()
-                .create();
+        mapper = new ObjectMapper();
     }
 
     public void run() {
@@ -108,6 +107,7 @@ public class GeoController {
                     .toList();
 
             session.getTransaction().commit();
+
             return allCities;
         }
     }
@@ -140,7 +140,11 @@ public class GeoController {
         try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
             RedisCommands<String, String> sync = connection.sync();
             for (CityCountry cityCountry : data) {
-                sync.set(String.valueOf(cityCountry.getId()), gson.toJson(cityCountry));
+                try {
+                    sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -150,7 +154,11 @@ public class GeoController {
             RedisCommands<String, String> sync = connection.sync();
             for (Integer id : ids) {
                 String value = sync.get(String.valueOf(id));
-                gson.fromJson(value, CityCountry.class);
+                try {
+                    mapper.readValue(value, CityCountry.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -165,16 +173,4 @@ public class GeoController {
             session.getTransaction().commit();
         }
     }
-
-//    public void testPostgresData(List<Integer> ids) {
-//        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
-//                Session session = sessionFactory.getCurrentSession()) {
-//            session.beginTransaction();
-//            for (Integer id : ids) {
-//                City city = cityDAO.getById(id);
-//                Set<CountryLanguage> languages = city.getCountry().getLanguages();
-//            }
-//            session.beginTransaction().commit();
-//        }
-//    }
 }

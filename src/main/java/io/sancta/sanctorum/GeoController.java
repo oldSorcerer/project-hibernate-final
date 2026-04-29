@@ -11,7 +11,6 @@ import io.sancta.sanctorum.domain.City;
 import io.sancta.sanctorum.domain.Country;
 import io.sancta.sanctorum.domain.CountryLanguage;
 import io.sancta.sanctorum.redis.CityCountry;
-import io.sancta.sanctorum.redis.Language;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.Session;
@@ -19,8 +18,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static io.sancta.sanctorum.mapper.CityCountryMapper.INSTANCE;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GeoController {
@@ -113,27 +113,7 @@ public class GeoController {
     }
 
     private List<CityCountry> transformData(List<City> cities) {
-        return cities.stream()
-                .map(city ->
-                        new CityCountry(
-                                city.getId(),
-                                city.getName(),
-                                city.getDistrict(),
-                                city.getPopulation(),
-                                city.getCountry().getCode(),
-                                city.getCountry().getAlternativeCode(),
-                                city.getCountry().getName(),
-                                city.getCountry().getContinent(),
-                                city.getCountry().getRegion(),
-                                city.getCountry().getSurfaceArea(),
-                                city.getCountry().getPopulation(),
-                                city.getCountry().getLanguages().stream()
-                                        .map(countryLanguage ->
-                                                new Language(countryLanguage.getLanguage(),
-                                                        countryLanguage.getIsOfficial(),
-                                                        countryLanguage.getPercentage())
-                                        ).collect(Collectors.toSet()))
-                ).toList();
+        return INSTANCE.citiesToCityCountries(cities);
     }
 
     private void pushToRedis(List<CityCountry> data) {
